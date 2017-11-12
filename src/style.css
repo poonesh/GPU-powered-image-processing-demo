@@ -10,7 +10,28 @@
 *{ margin: 0; padding:0; }
 
 body{
-	background-color: #00008B;
+	background-color: Gray;
 	font-family: Arial, sans-serif;
 	padding: 15px;
 }
+
+.error{color: #B71C1C;}
+
+#droppingDiv{
+	display: table-cell;
+	height: 150px;
+	width: 200px;
+	vertical-align: middle;
+	text-align: center;
+	color: #37474F;
+	background-color: LightGray;
+	border: solid 2px #333333;
+	border-radius: 10px;
+}
+
+#droppingDiv input{
+	width: 150px;
+	margin: auto;
+}
+
+#droppedImage{display: none; }
