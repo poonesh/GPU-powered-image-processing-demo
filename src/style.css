@@ -27,8 +27,7 @@ body{
 	margin: auto;
 }
 
-#droppedImage{
+img{
 	width: 100px;
 	height: 100px;
-	display: none;
 }
