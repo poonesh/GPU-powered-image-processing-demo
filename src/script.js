@@ -1,26 +1,28 @@
 // the code is from https://codepen.io/doughensel/pen/zGMmop
+
+var dragdrop = {};
 $(document).ready(function(){
 
 	'use strict';
-	(function(){
-	// http://stackoverflow.com/questions/4083351/what-does-jquery-fn-mean
-		var $ = function( elem ){
-			if (!(this instanceof $)){
-	      return new $(elem);
-			}
-			this.el = document.getElementById( elem );
-		};
-		window.$ = $;
-		$.prototype = {
-			onChange : function( callback ){
-				this.el.addEventListener('change', callback );
-				return this;
-			}
-		};
-	})();
+	// (function(){
+	// // http://stackoverflow.com/questions/4083351/what-does-jquery-fn-mean
+	// 	var $ = function( elem ){
+	// 		if (!(this instanceof $)){
+	//       return new $(elem);
+	// 		}
+	// 		this.el = document.getElementById( elem );
+	// 	};
+	// 	window.$ = $;
+	// 	$.prototype = {
+	// 		onChange : function( callback ){
+	// 			this.el.addEventListener('change', callback );
+	// 			return this;
+	// 		}
+	// 	};
+	// })();
 
 	// Drag and Drop code for Upload
-	var dragdrop = {
+	dragdrop = {
 		init : function(elem){
 			elem.setAttribute('ondrop', 'dragdrop.drop(event)');
 			elem.setAttribute('ondragover', 'dragdrop.drag(event)');
@@ -30,8 +32,16 @@ $(document).ready(function(){
 			e.preventDefault();
 			// To upload more than one image we can loop over the file
 			// and runUpload the files one by one
-			var file = e.dataTransfer.files[0];
-			runUpload(file);
+			
+			var file = e.dataTransfer.files;
+			for (var i=0; i<file.length; i++){
+				var myDiv = $('<div></div>');
+				var img = $(runUpload(file[i]));
+				console.log(myDiv);
+				myDiv.append(img);
+				$('body').appendChild(myDiv);	
+			}
+
 		},
 
 		drag : function(e){

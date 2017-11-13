@@ -10,8 +10,8 @@ body{
 .error{color: #B71C1C;}
 
 #droppingDiv{
-	display: table-cell;
-	height: 150px;
+	display: block;
+	height: 100px;
 	width: 200px;
 	vertical-align: middle;
 	text-align: center;
@@ -19,6 +19,7 @@ body{
 	background-color: LightGray;
 	border: solid 2px #333333;
 	border-radius: 10px;
+	margin: 20px 20px;
 }
 
 #droppingDiv input{
@@ -26,4 +27,8 @@ body{
 	margin: auto;
 }
 
-#droppedImage{display: none; }
+#droppedImage{
+	width: 100px;
+	height: 100px;
+	display: none;
+}
