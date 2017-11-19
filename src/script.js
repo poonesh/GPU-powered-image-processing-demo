@@ -24,34 +24,39 @@ $(document).ready(function(){
 
 	// Drag and Drop code for Upload
 	dragdrop = {
-		init : function(elem){
-			elem.setAttribute('ondrop', 'dragdrop.drop(event)');
-			elem.setAttribute('ondragover', 'dragdrop.drag(event)');
+        elem: null,
+		init: function(elem){
+			elem.addEventListener('drop', dragdrop.drop);
+			elem.addEventListener('dragover', dragdrop.drag);
+            dragdrop.elem = elem;
 		},
 
-		drop : function(e){
+		drop: function(e){
 			e.preventDefault();
 			// To upload more than one image we can loop over the file
 			// and runUpload the files one by one
-			
+
 			var file = e.dataTransfer.files;
 			var previous_image_num = total_image_num;
 			total_image_num += file.length;
 			if (total_image_num > 5){
-					console.error("you cannot upload more than five pictures");
-					return;
-				}
+                console.error("you cannot upload more than five pictures");
+                return;
+            }
 			for (var i=0; i<file.length; i++){
 				var myDiv = $('<div></div>');
 				runUpload(file[i], myDiv);
 				myDiv.css({"left":`${105 * (previous_image_num+i) }px`, "position":"absolute"});
-				$('body').append(myDiv);	
+				$('body').append(myDiv);
 			}
 
 		},
 
-		drag : function(e){
+		drag: function(e){
 			e.preventDefault();
+            if (dragdrop.elem !== null) {
+                $(dragdrop.elem).css({ 'border': 'solid 2px #0000FF' });
+            }
 		}
 
 	};
@@ -68,7 +73,7 @@ $(document).ready(function(){
 		  // customizing the onload method and how to do onload
 		  reader.onload = function(file_being_loaded){
 		  	var myImageTag = $('<img>');
-			myImageTag.attr("src",file_being_loaded.target.result);	
+			myImageTag.attr("src",file_being_loaded.target.result);
 			myDiv.append(myImageTag);
 
 		  } // END reader.onload()
