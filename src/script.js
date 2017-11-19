@@ -109,11 +109,23 @@ $(document).ready(function(){
 			// bind the input [type="file"] to the function runUpload()
 			select('fileUpload').onChange(function(){
 				var myDiv = $('<div></div>');
-				runUpload(this.files[0], myDiv); 
-				myDiv.css({"left":`${105 * (total_image_num) }px`, "position":"absolute"});
+				runUpload(this.files[0], myDiv);
+
+                var xIndex = 0; // TODO: FILL ME IN
+                var yIndex = 0; // TODO: FILL ME IN
+
+                var leftOffset = 0; // TODO: FILL ME IN
+                var topOffset = 0; // TODO: FILL ME IN
+
+//				myDiv.css({"left":`${105 * (total_image_num) }px`, "position":"absolute"});
+				myDiv.css({
+                    left: leftOffset,
+                    top: topOffset,
+                    position: "absolute"
+                });
 				$('body').append(myDiv);
 				total_image_num += 1;
-			});	
+			});
 		}else{
 			// report error message if FileReader is unavialable
 			var p = document.createElement('p');
