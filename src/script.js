@@ -27,15 +27,21 @@ $(document).ready(function(){
         elem: null,
 		init: function(elem){
 			elem.addEventListener('drop', dragdrop.drop);
+            elem.addEventListener('dragenter', dragdrop.enter);
 			elem.addEventListener('dragover', dragdrop.drag);
+            elem.addEventListener('dragleave', dragdrop.leave);
             dragdrop.elem = elem;
 		},
 
 		drop: function(e){
 			e.preventDefault();
+            // set element border back to grey
+            if (dragdrop.elem !== null) {
+                $(dragdrop.elem).css({ 'border': 'solid 2px #333333' });
+            }
+
 			// To upload more than one image we can loop over the file
 			// and runUpload the files one by one
-
 			var file = e.dataTransfer.files;
 			var previous_image_num = total_image_num;
 			total_image_num += file.length;
@@ -54,10 +60,22 @@ $(document).ready(function(){
 
 		drag: function(e){
 			e.preventDefault();
+		},
+
+        enter: function(e) {
+            // highlight element by setting its border to blue
             if (dragdrop.elem !== null) {
                 $(dragdrop.elem).css({ 'border': 'solid 2px #0000FF' });
             }
-		}
+        },
+
+        leave: function(e) {
+            // set element border back to grey
+            if (dragdrop.elem !== null) {
+                $(dragdrop.elem).css({ 'border': 'solid 2px #333333' });
+            }
+        }
+
 
 	};
 
