@@ -2,6 +2,7 @@
 
 var dragdrop = {};
 var total_image_num = 0;
+var previous_image_num = 0;
 $(document).ready(function(){
 
 	'use strict';
@@ -104,15 +105,21 @@ $(document).ready(function(){
 		if (window.FileReader){
 			// connect the DIV surrounding the file upload to HTML5 drag and drop calls
 			console.log(select('droppingDiv'));
-			dragdrop.init( select('droppingDiv').el );
+			dragdrop.init(select('droppingDiv').el);
 			// bind the input [type="file"] to the function runUpload()
-			select('fileUpload').onChange(function(){runUpload(this.files[0]);});
+			select('fileUpload').onChange(function(){
+				var myDiv = $('<div></div>');
+				runUpload(this.files[0], myDiv); 
+				myDiv.css({"left":`${105 * (total_image_num) }px`, "position":"absolute"});
+				$('body').append(myDiv);
+				total_image_num += 1;
+			});	
 		}else{
 			// report error message if FileReader is unavialable
 			var p = document.createElement('p');
 			var msg = document.createElement('Sorry, your browser does not support FileReader.');
 			p.className = 'error';
-			p.appendChild( msg );
+			p.appendChild(msg);
 			select(droppingDiv).el.innerHTML = '';
 			select(droppingDiv).el.appendChild( p );
 		}

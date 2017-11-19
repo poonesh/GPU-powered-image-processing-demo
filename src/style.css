@@ -1,5 +1,5 @@
 /*the code is from https://codepen.io/doughensel/pen/zGMmop*/
-*{ margin: 0; padding:0; }
+*{ margin:0 ; padding:0; }
 
 body{
 	background-color: Gray;
@@ -30,4 +30,5 @@ body{
 img{
 	width: 100px;
 	height: 100px;
+	margin-left: 40px;
 }
