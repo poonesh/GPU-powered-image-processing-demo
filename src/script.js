@@ -25,12 +25,12 @@ $(document).ready(function(){
 	// Drag and Drop code for Upload
 	dragdrop = {
         elem: null,
-		init: function(elem){
-			elem.addEventListener('drop', dragdrop.drop);
-            elem.addEventListener('dragenter', dragdrop.enter);
-			elem.addEventListener('dragover', dragdrop.drag);
-            elem.addEventListener('dragleave', dragdrop.leave);
-            dragdrop.elem = elem;
+		init: function(elementValue){
+			elementValue.addEventListener('drop', dragdrop.drop);
+            elementValue.addEventListener('dragenter', dragdrop.enter);
+			elementValue.addEventListener('dragover', dragdrop.drag);
+            elementValue.addEventListener('dragleave', dragdrop.leave);
+            dragdrop.elem = elementValue;
 		},
 
 		drop: function(e){
