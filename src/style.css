@@ -30,5 +30,12 @@ body{
 img{
 	width: 100px;
 	height: 100px;
-	margin-left: 40px;
+}
+
+#thumbnailImage{
+	width: 315px;
+	height: 225px;
+	margin: 20px 20px 20px 20px;
+	border: solid 2px #333333;
+	position: absolute;
 }

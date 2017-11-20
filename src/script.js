@@ -3,6 +3,7 @@
 var dragdrop = {};
 var total_image_num = 0;
 var previous_image_num = 0;
+var images_per_row = 3;
 $(document).ready(function(){
 
 	'use strict';
@@ -45,16 +46,28 @@ $(document).ready(function(){
 			// and runUpload the files one by one
 			var file = e.dataTransfer.files;
 			var previous_image_num = total_image_num;
-			total_image_num += file.length;
 			if (total_image_num > 5){
                 console.error("you cannot upload more than five pictures");
                 return;
             }
 			for (var i=0; i<file.length; i++){
+
+				var xIndex = previous_image_num % images_per_row;
+                var yIndex = Math.floor(previous_image_num / images_per_row);
+
+                var leftOffset = xIndex * 105;
+                var topOffset = yIndex * 105;
+
+                total_image_num += 1;
+
 				var myDiv = $('<div></div>');
 				runUpload(file[i], myDiv);
-				myDiv.css({"left":`${105 * (previous_image_num+i) }px`, "position":"absolute"});
-				$('body').append(myDiv);
+				myDiv.css({
+                    left: leftOffset,
+                    top: topOffset,
+                    position: "absolute"
+                });
+				$('#thumbnailImage').append(myDiv);
 			}
 
 		},
@@ -76,8 +89,6 @@ $(document).ready(function(){
                 $(dragdrop.elem).css({ 'border': 'solid 2px #333333' });
             }
         }
-
-
 	};
 
 	// Code to capture a file(image) and upload it to the browser
@@ -110,20 +121,24 @@ $(document).ready(function(){
 			select('fileUpload').onChange(function(){
 				var myDiv = $('<div></div>');
 				runUpload(this.files[0], myDiv);
+				if (total_image_num > 5){
+                	console.error("you cannot upload more than five pictures");
+                	return;
+                };
+				
+                var xIndex = total_image_num % images_per_row;
+                var yIndex = Math.floor(total_image_num / images_per_row);
 
-                var xIndex = 0; // TODO: FILL ME IN
-                var yIndex = 0; // TODO: FILL ME IN
+                var leftOffset = xIndex * 105;
+                var topOffset = yIndex * 105;
+                console.log("topOffset", topOffset);
 
-                var leftOffset = 0; // TODO: FILL ME IN
-                var topOffset = 0; // TODO: FILL ME IN
-
-//				myDiv.css({"left":`${105 * (total_image_num) }px`, "position":"absolute"});
 				myDiv.css({
                     left: leftOffset,
                     top: topOffset,
                     position: "absolute"
                 });
-				$('body').append(myDiv);
+				$('#thumbnailImage').append(myDiv);
 				total_image_num += 1;
 			});
 		}else{
