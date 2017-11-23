@@ -1,5 +1,6 @@
-// the code is from https://codepen.io/doughensel/pen/zGMmop
+// part of the code is from https://codepen.io/doughensel/pen/zGMmop
 
+// defining global variables
 var dragdrop = {};
 var total_image_num = 0;
 var previous_image_num = 0;
@@ -61,7 +62,7 @@ $(document).ready(function(){
                 total_image_num += 1;
 
 				var myDiv = $('<div></div>');
-				runUpload(file[i], myDiv);
+				runUpload(file[i], myDiv, i);
 				myDiv.css({
                     left: leftOffset,
                     top: topOffset,
@@ -92,7 +93,7 @@ $(document).ready(function(){
 	};
 
 	// Code to capture a file(image) and upload it to the browser
-	function runUpload(file, myDiv){
+	function runUpload(file, myDiv, current_image_id){
 		if( file.type === 'image/png' ||
 			file.type === 'image/jpg' ||
 			file.type === 'image/jpeg'||
@@ -103,7 +104,10 @@ $(document).ready(function(){
 		  // customizing the onload method and how to do onload
 		  reader.onload = function(file_being_loaded){
 		  	var myImageTag = $('<img>');
+		  	myImageTag.on('dragstart', drag);
+		  	myImageTag.attr("id", `draggableImage${current_image_id}`); //template string
 			myImageTag.attr("src",file_being_loaded.target.result);
+			myImageTag.attr("draggable",true);
 			myDiv.append(myImageTag);
 
 		  } // END reader.onload()
@@ -120,7 +124,7 @@ $(document).ready(function(){
 			// bind the input [type="file"] to the function runUpload()
 			select('fileUpload').onChange(function(){
 				var myDiv = $('<div></div>');
-				runUpload(this.files[0], myDiv);
+				runUpload(this.files[0], myDiv, total_image_num);
 				if (total_image_num > 5){
                 	console.error("you cannot upload more than five pictures");
                 	return;
@@ -153,4 +157,52 @@ $(document).ready(function(){
 
 	};
 
+	// drag and drop thumbnail images in main Editor div
+	$("#mainEditor").on("drop", drop);
+	$("#mainEditor").on("dragover", allowDrop);
+	function allowDrop(ev){
+		ev.originalEvent.preventDefault();
+	}
+
+	function drag(ev){
+		console.log(ev);
+		ev.originalEvent.dataTransfer.setData("text", ev.originalEvent.target.id);
+	}
+
+	function drop(ev){
+		ev.originalEvent.preventDefault();
+		var data = ev.originalEvent.dataTransfer.getData("text");
+		ev.originalEvent.target.appendChild(document.getElementById(data));
+		var dropped_image = document.getElementById(data);
+		dropped_image.classList.add('expanded-image');
+
+	} 
+
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

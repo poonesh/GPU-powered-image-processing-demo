@@ -39,3 +39,15 @@ img{
 	border: solid 2px #333333;
 	position: absolute;
 }
+
+#mainEditor{
+	width: 500px;
+	height: 500px;
+	border: solid 2px #333333;
+	margin: 40px 20px 20px 500px;
+}
+
+.expanded-image{
+	width: 500px;
+	height: 500px;
+}
