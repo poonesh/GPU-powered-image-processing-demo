@@ -6,6 +6,7 @@ var total_image_num = 0;
 var previous_image_num = 0;
 var images_per_row = 3;
 
+
 // edge detection using GLSL and  three.js
 document.addEventListener("DOMContentLoaded", function(event){
 
@@ -123,6 +124,7 @@ document.addEventListener("DOMContentLoaded", function(event){
 		  	//jQuery to set the src attribute for <img> tag
 			myImageTag.attr("src",file_being_loaded.target.result); 
 			myImageTag.attr("draggable",true);
+			myImageTag.attr("class", "imageEdit");
 			myDiv.append(myImageTag);
 
 		  } // END reader.onload()
@@ -185,24 +187,22 @@ document.addEventListener("DOMContentLoaded", function(event){
 		ev.originalEvent.dataTransfer.setData("text", ev.originalEvent.target.id);
 	}
 
-	function drop(ev){
-		// ev.originalEvent.preventDefault();
-		// var data = ev.originalEvent.dataTransfer.getData("text");
-		// ev.originalEvent.target.appendChild(document.getElementById(data));
-		// var dropped_image = document.getElementById(data);
-		// dropped_image.classList.add('expanded-image');
-		// var imgSrc = document.getElementsByTagName("IMG")[0].getAttribute("src");
-		// console.log(imgSrc);
-
-		// get the <img> tag source
-		var imgSrc = document.getElementsByTagName("IMG")[0].getAttribute("src");
-	
+	function drop(ev){ //drop function works when I am releasing the mouse
+		var data = ev.originalEvent.dataTransfer.getData("text"); //look for dataTransfer???????
+		console.log(data);
+		var imgSrc = document.getElementById(data).getAttribute("src");
+		
 		// create texture_loader
 		var texture_loader = new THREE.TextureLoader();
 		var texture = texture_loader.load(imgSrc);
 		material.uniforms.texture.value = texture;
-	} 
+	
+	}
 
+	
+	$("button").click(function(){
+		material.uniforms.edgeDetectionActive.value = !material.uniforms.edgeDetectionActive.value;
+	});
 
 	// create a renderer object
 	// buffer geometry and properties are all made in three.js and in order to 
@@ -225,7 +225,7 @@ document.addEventListener("DOMContentLoaded", function(event){
 	
 	// define a camera with field_of_view = 70, ratio, near and far clipping planes
 	var camera = new THREE.PerspectiveCamera(70, 500/500, 0.01, 1000);
-	camera.position.z = 2;
+	camera.position.z = 2.5;
 
 	// bufferGeometry stores all data including vertices within buffers
 	// plane consists of two triangles
@@ -278,22 +278,50 @@ document.addEventListener("DOMContentLoaded", function(event){
 		'uniform float red;',
 		'uniform sampler2D texture;', //sampler2D is the image I am doing edge detection on and import it from js
 		'uniform vec2 dimension;',
+		'uniform float edgeDetectionActive;',
 		'void main() {',
 			'float pixel_width = 1.0/dimension[0];',
 			'float pixel_height = 1.0/dimension[1];',
-			'vec3 color = vec3(0.0);', // creating a variable called color and the color is black
-			'color += 0.0*(texture2D(texture, vUV).rgb);',
-			'color += 1.0*(texture2D(texture, vec2(vUV.x-pixel_width, vUV.y-pixel_height)).rgb);',
-			'color += 0.0*(texture2D(texture, vec2(vUV.x, vUV.y-pixel_height)).rgb);',
-			'color += -1.0*(texture2D(texture, vec2(vUV.x+pixel_width, vUV.y-pixel_height)).rgb);',
-			'color += 0.0*(texture2D(texture, -1.0*vec2(vUV.x-pixel_width, vUV.y)).rgb);',
-			'color += 0.0*(texture2D(texture, -1.0*vec2(vUV.x+pixel_width, vUV.y)).rgb);',
-			'color += -1.0*(texture2D(texture, -1.0*vec2(vUV.x-pixel_width, vUV.y+pixel_height)).rgb);',
-			'color += 0.0*(texture2D(texture, -1.0*vec2(vUV.x, vUV.y+pixel_height)).rgb);',
-			'color += 1.0*(texture2D(texture, -1.0*vec2(vUV.x+pixel_width, vUV.y-pixel_height)).rgb);',
+			// 'vec3 color = vec3(0.0);', // creating a variable called color and the color is black
+			'vec3 middle = (texture2D(texture, vUV).rgb);', //0.0
+			'vec3 top_left = (texture2D(texture, vec2(vUV.x-pixel_width, vUV.y-pixel_height)).rgb);', //1.0
+			'vec3 top_top = (texture2D(texture, vec2(vUV.x, vUV.y-pixel_height)).rgb);', //0.0
+			'vec3 top_right = (texture2D(texture, vec2(vUV.x+pixel_width, vUV.y-pixel_height)).rgb);', //-1.0
+			'vec3 left = (texture2D(texture,  vec2(vUV.x-pixel_width, vUV.y)).rgb);', //0.0
+			'vec3 right = (texture2D(texture, vec2(vUV.x+pixel_width, vUV.y)).rgb);', //0.0
+			'vec3 bottom_left = (texture2D(texture, vec2(vUV.x-pixel_width, vUV.y+pixel_height)).rgb);', //-1.0
+			'vec3 bottom_bottom = (texture2D(texture, vec2(vUV.x, vUV.y+pixel_height)).rgb);', //0.0
+			'vec3 bottom_right = (texture2D(texture, vec2(vUV.x+pixel_width, vUV.y-pixel_height)).rgb);', //1.0
+			
+			// converting the pixels into gray scale
+
+			'float middle_grey = (middle.r + middle.g + middle.b)/3.0;',
+			'float top_left_grey = (top_left.r + top_left.g + top_left.b)/3.0;',
+			'float top_top_grey = (top_top.r + top_top.g + top_top.b)/3.0;',
+			'float top_right_grey = (top_right.r + top_right.g + top_right.b)/3.0;',
+			'float left_grey = (left.r + left.g + left.b)/3.0;',
+			'float right_grey = (right.r + right.g + right.b)/3.0;',
+			'float bottom_left_grey = (bottom_left.r + bottom_left.g + bottom_left.b)/3.0;',
+			'float bottom_bottom_grey = (bottom_bottom.r + bottom_bottom.g + bottom_bottom.b)/3.0;',
+			'float bottom_right_grey = (bottom_right.r + bottom_right.g + bottom_right.b)/3.0;',
+
+			// 'float color=0.0;',
+			// 'color += 0.0*middle_grey;',
+			// 'color += 1.0*top_left_grey;',
+			// 'color += 0.0*top_top_grey;',
+			// 'color += -1.0*top_right_grey;',
+			// 'color += 0.0*left_grey;',
+			// 'color += 0.0*right_grey;',
+			// 'color += -1.0*bottom_left_grey;',
+			// 'color += 0.0*bottom_bottom_grey;',
+			// 'color += 1.0*bottom_right_grey;',
+            
+            'gl_FragColor = vec4 (middle_grey, middle_grey, middle_grey ,1.0);',
+
+			// 'if(edgeDetectionActive == 1.0){gl_FragColor = vec4 (color, color, color ,1.0);} else{gl_FragColor = (texture2D(texture, vUV).rgba);}',
 			// 'gl_FragColor = vec4(, 0.0, 0.0, 1.0);', //1.0 is opaque
 			// 'gl_FragColor = (texture2D(texture, vUV).rgba);',
-			'gl_FragColor = vec4(color,1.0);',
+			// 'gl_FragColor = vec4(color,1.0);',
 
 		'}',
 	].join('\n');
@@ -305,15 +333,17 @@ document.addEventListener("DOMContentLoaded", function(event){
 	var dimension = [500, 500];
 	var material = new THREE.ShaderMaterial({
 		uniforms:{
-			red: {type: 'f', value: 0 },
+			red: {type: 'f', value: 0.0 },
 			texture: {type: 't'},
 			dimension: {type: 'v2', value: dimension},
+			edgeDetectionActive: {type: 'f', value: 0.0},
 		},
-		vertexShader: vShader, //mandatory
+		vertexShader: vShader, 
 		fragmentShader: fShader, // mandatory
 	});
-
 	
+	window.material = material;
+
 	// adding mesh to the scene
 	var mesh = new THREE.Mesh(plane, material);
 	scene.add( mesh );
@@ -337,8 +367,6 @@ document.addEventListener("DOMContentLoaded", function(event){
 
 	// loading texture
 	// var texture_loader = new THREE.TextureLoader();
-
-
 
 });
 
