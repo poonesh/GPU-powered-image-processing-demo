@@ -199,12 +199,33 @@ document.addEventListener("DOMContentLoaded", function(event){
 	
 	}
 
+	// toggle buttons
 	
-	$("button").click(function(){
+	$("#edgeDetection").click(function(){
 		material.uniforms.edgeDetectionActive.value = !material.uniforms.edgeDetectionActive.value;
+		material.uniforms.greyScaleActive.value = 0.0;
+		material.uniforms.blurActive.value = 0.0;
 	});
 
-	// create a renderer object
+	$("#greyScale").click(function(){
+		material.uniforms.greyScaleActive.value = !material.uniforms.greyScaleActive.value;
+		material.uniforms.edgeDetectionActive.value = 0.0;
+		material.uniforms.blurActive.value = 0.0;
+	});
+
+	$("#blur").click(function(){
+		material.uniforms.blurActive.value = !material.uniforms.blurActive.value;
+		material.uniforms.greyScaleActive.value = 0.0;
+		material.uniforms.edgeDetectionActive.value = 0.0;
+	});
+
+	$("#origin").click(function(){
+		material.uniforms.edgeDetectionActive.value = 0.0;
+		material.uniforms.greyScaleActive.value = 0.0;
+		material.uniforms.blurActive.value = 0.0;
+	});
+
+    // create a renderer object
 	// buffer geometry and properties are all made in three.js and in order to 
 	// render it in WebGL we need to create a WebGLRenderer()
 	var renderer = new THREE.WebGLRenderer({ alpha: true }); 
@@ -275,13 +296,16 @@ document.addEventListener("DOMContentLoaded", function(event){
 		'varying vec2 vUV;',
 		// another type of variable (javaScript tells GLSL the value of this variable)
 		// a sampler2D is a texture
-		'uniform float red;',
 		'uniform sampler2D texture;', //sampler2D is the image I am doing edge detection on and import it from js
 		'uniform vec2 dimension;',
 		'uniform float edgeDetectionActive;',
+		'uniform float greyScaleActive;',
+		'uniform float blurActive;',
+		
 		'void main() {',
 			'float pixel_width = 1.0/dimension[0];',
 			'float pixel_height = 1.0/dimension[1];',
+			
 			// 'vec3 color = vec3(0.0);', // creating a variable called color and the color is black
 			'vec3 middle = (texture2D(texture, vUV).rgb);', //0.0
 			'vec3 top_left = (texture2D(texture, vec2(vUV.x-pixel_width, vUV.y-pixel_height)).rgb);', //1.0
@@ -294,7 +318,6 @@ document.addEventListener("DOMContentLoaded", function(event){
 			'vec3 bottom_right = (texture2D(texture, vec2(vUV.x+pixel_width, vUV.y-pixel_height)).rgb);', //1.0
 			
 			// converting the pixels into gray scale
-
 			'float middle_grey = (middle.r + middle.g + middle.b)/3.0;',
 			'float top_left_grey = (top_left.r + top_left.g + top_left.b)/3.0;',
 			'float top_top_grey = (top_top.r + top_top.g + top_top.b)/3.0;',
@@ -305,20 +328,34 @@ document.addEventListener("DOMContentLoaded", function(event){
 			'float bottom_bottom_grey = (bottom_bottom.r + bottom_bottom.g + bottom_bottom.b)/3.0;',
 			'float bottom_right_grey = (bottom_right.r + bottom_right.g + bottom_right.b)/3.0;',
 
-			// 'float color=0.0;',
-			// 'color += 0.0*middle_grey;',
-			// 'color += 1.0*top_left_grey;',
-			// 'color += 0.0*top_top_grey;',
-			// 'color += -1.0*top_right_grey;',
-			// 'color += 0.0*left_grey;',
-			// 'color += 0.0*right_grey;',
-			// 'color += -1.0*bottom_left_grey;',
-			// 'color += 0.0*bottom_bottom_grey;',
-			// 'color += 1.0*bottom_right_grey;',
-            
-            'gl_FragColor = vec4 (middle_grey, middle_grey, middle_grey ,1.0);',
+			// edge detection calculation
+			'float color = 0.0;',
+			'color += 0.0*middle_grey;',
+			'color += 1.0*top_left_grey;',
+			'color += 0.0*top_top_grey;',
+			'color += -1.0*top_right_grey;',
+			'color += 0.0*left_grey;',
+			'color += 0.0*right_grey;',
+			'color += -1.0*bottom_left_grey;',
+			'color += 0.0*bottom_bottom_grey;',
+			'color += 1.0*bottom_right_grey;',
 
-			// 'if(edgeDetectionActive == 1.0){gl_FragColor = vec4 (color, color, color ,1.0);} else{gl_FragColor = (texture2D(texture, vUV).rgba);}',
+			// blurr calculation
+			'vec3 blur = vec3(0.0);',
+			'blur += (1.0/9.0)*(middle+top_left+top_top+top_right+left+right+bottom_left+bottom_bottom+bottom_right);',
+
+
+            
+			'if(greyScaleActive == 1.0){',
+				'gl_FragColor = vec4 (middle_grey, middle_grey, middle_grey, 1.0);',
+			'}else if(edgeDetectionActive == 1.0){',
+				'gl_FragColor = vec4 (color, color, color ,1.0);',
+			'}else if(blurActive == 1.0){',
+				'gl_FragColor = vec4 (blur,1.0);',
+			'}else{',
+				'gl_FragColor = (texture2D(texture, vUV).rgba);',
+			'}',
+			
 			// 'gl_FragColor = vec4(, 0.0, 0.0, 1.0);', //1.0 is opaque
 			// 'gl_FragColor = (texture2D(texture, vUV).rgba);',
 			// 'gl_FragColor = vec4(color,1.0);',
@@ -333,10 +370,12 @@ document.addEventListener("DOMContentLoaded", function(event){
 	var dimension = [500, 500];
 	var material = new THREE.ShaderMaterial({
 		uniforms:{
-			red: {type: 'f', value: 0.0 },
 			texture: {type: 't'},
 			dimension: {type: 'v2', value: dimension},
 			edgeDetectionActive: {type: 'f', value: 0.0},
+			greyScaleActive: {type: 'f', value: 0.0},
+			blurActive: {type: 'f', value: 0.0},
+
 		},
 		vertexShader: vShader, 
 		fragmentShader: fShader, // mandatory
