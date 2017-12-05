@@ -328,28 +328,58 @@ document.addEventListener("DOMContentLoaded", function(event){
 			'float bottom_bottom_grey = (bottom_bottom.r + bottom_bottom.g + bottom_bottom.b)/3.0;',
 			'float bottom_right_grey = (bottom_right.r + bottom_right.g + bottom_right.b)/3.0;',
 
+			
 			// edge detection calculation
-			'float color = 0.0;',
-			'color += 0.0*middle_grey;',
-			'color += 1.0*top_left_grey;',
-			'color += 0.0*top_top_grey;',
-			'color += -1.0*top_right_grey;',
-			'color += 0.0*left_grey;',
-			'color += 0.0*right_grey;',
-			'color += -1.0*bottom_left_grey;',
-			'color += 0.0*bottom_bottom_grey;',
-			'color += 1.0*bottom_right_grey;',
+			// 'float color = 0.0;',
+			// 'color += 0.0*middle_grey;',
+			// 'color += 1.0*top_left_grey;',
+			// 'color += 0.0*top_top_grey;',
+			// 'color += -1.0*top_right_grey;',
+			// 'color += 0.0*left_grey;',
+			// 'color += 0.0*right_grey;',
+			// 'color += -1.0*bottom_left_grey;',
+			// 'color += 0.0*bottom_bottom_grey;',
+			// 'color += 1.0*bottom_right_grey;',
+
+			// Applying Sobel Operator (Sobel Kernel) for edge detection 
+
+			'float edgeDetect_x = 0.0;',
+			'edgeDetect_x += 0.0*middle_grey;',
+			'edgeDetect_x += 1.0*top_left_grey;',
+			'edgeDetect_x += 0.0*top_top_grey;',
+			'edgeDetect_x += -1.0*top_right_grey;',
+			'edgeDetect_x += 2.0*left_grey;',
+			'edgeDetect_x += -2.0*right_grey;',
+			'edgeDetect_x += 1.0*bottom_left_grey;',
+			'edgeDetect_x += 0.0*bottom_bottom_grey;',
+			'edgeDetect_x += -1.0*bottom_right_grey;',
+
+
+			'float edgeDetect_y = 0.0;',
+			'edgeDetect_y += 0.0*middle_grey;',
+			'edgeDetect_y += 1.0*top_left_grey;',
+			'edgeDetect_y += 2.0*top_top_grey;',
+			'edgeDetect_y += 1.0*top_right_grey;',
+			'edgeDetect_y += 0.0*left_grey;',
+			'edgeDetect_y += 0.0*right_grey;',
+			'edgeDetect_y += -1.0*bottom_left_grey;',
+			'edgeDetect_y += -2.0*bottom_bottom_grey;',
+			'edgeDetect_y += -1.0*bottom_right_grey;',
+
+
+			'float edgeDetect_magnitude = 0.0;',
+			'edgeDetect_magnitude += sqrt(edgeDetect_x*edgeDetect_x + edgeDetect_y*edgeDetect_y);',
+			
 
 			// blurr calculation
 			'vec3 blur = vec3(0.0);',
 			'blur += (1.0/9.0)*(middle+top_left+top_top+top_right+left+right+bottom_left+bottom_bottom+bottom_right);',
 
 
-            
 			'if(greyScaleActive == 1.0){',
 				'gl_FragColor = vec4 (middle_grey, middle_grey, middle_grey, 1.0);',
 			'}else if(edgeDetectionActive == 1.0){',
-				'gl_FragColor = vec4 (color, color, color ,1.0);',
+				'gl_FragColor = vec4 (edgeDetect_magnitude, edgeDetect_magnitude, edgeDetect_magnitude ,1.0);',
 			'}else if(blurActive == 1.0){',
 				'gl_FragColor = vec4 (blur,1.0);',
 			'}else{',
