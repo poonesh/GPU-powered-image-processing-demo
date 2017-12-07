@@ -305,90 +305,65 @@ document.addEventListener("DOMContentLoaded", function(event){
 		'void main() {',
 			'float pixel_width = 1.0/dimension[0];',
 			'float pixel_height = 1.0/dimension[1];',
+			'vec2 topLeftOffset = vec2(vUV.x - pixel_width, vUV.y - pixel_height);',
 			
-			// 'vec3 color = vec3(0.0);', // creating a variable called color and the color is black
-			'vec3 middle = (texture2D(texture, vUV).rgb);', //0.0
-			'vec3 top_left = (texture2D(texture, vec2(vUV.x-pixel_width, vUV.y-pixel_height)).rgb);', //1.0
-			'vec3 top_top = (texture2D(texture, vec2(vUV.x, vUV.y-pixel_height)).rgb);', //0.0
-			'vec3 top_right = (texture2D(texture, vec2(vUV.x+pixel_width, vUV.y-pixel_height)).rgb);', //-1.0
-			'vec3 left = (texture2D(texture,  vec2(vUV.x-pixel_width, vUV.y)).rgb);', //0.0
-			'vec3 right = (texture2D(texture, vec2(vUV.x+pixel_width, vUV.y)).rgb);', //0.0
-			'vec3 bottom_left = (texture2D(texture, vec2(vUV.x-pixel_width, vUV.y+pixel_height)).rgb);', //-1.0
-			'vec3 bottom_bottom = (texture2D(texture, vec2(vUV.x, vUV.y+pixel_height)).rgb);', //0.0
-			'vec3 bottom_right = (texture2D(texture, vec2(vUV.x+pixel_width, vUV.y-pixel_height)).rgb);', //1.0
-			
-			// converting the pixels into gray scale
+			// the middle pixel texture
+			'vec3 middle = (texture2D(texture, vUV).rgb);',
+			// converting the pixels into grey scale
 			'float middle_grey = (middle.r + middle.g + middle.b)/3.0;',
-			'float top_left_grey = (top_left.r + top_left.g + top_left.b)/3.0;',
-			'float top_top_grey = (top_top.r + top_top.g + top_top.b)/3.0;',
-			'float top_right_grey = (top_right.r + top_right.g + top_right.b)/3.0;',
-			'float left_grey = (left.r + left.g + left.b)/3.0;',
-			'float right_grey = (right.r + right.g + right.b)/3.0;',
-			'float bottom_left_grey = (bottom_left.r + bottom_left.g + bottom_left.b)/3.0;',
-			'float bottom_bottom_grey = (bottom_bottom.r + bottom_bottom.g + bottom_bottom.b)/3.0;',
-			'float bottom_right_grey = (bottom_right.r + bottom_right.g + bottom_right.b)/3.0;',
 
 			
 			// edge detection calculation
-			// 'float color = 0.0;',
-			// 'color += 0.0*middle_grey;',
-			// 'color += 1.0*top_left_grey;',
-			// 'color += 0.0*top_top_grey;',
-			// 'color += -1.0*top_right_grey;',
-			// 'color += 0.0*left_grey;',
-			// 'color += 0.0*right_grey;',
-			// 'color += -1.0*bottom_left_grey;',
-			// 'color += 0.0*bottom_bottom_grey;',
-			// 'color += 1.0*bottom_right_grey;',
-
 			// Applying Sobel Operator (Sobel Kernel) for edge detection 
-
 			'float edgeDetect_x = 0.0;',
-			'edgeDetect_x += 0.0*middle_grey;',
-			'edgeDetect_x += 1.0*top_left_grey;',
-			'edgeDetect_x += 0.0*top_top_grey;',
-			'edgeDetect_x += -1.0*top_right_grey;',
-			'edgeDetect_x += 2.0*left_grey;',
-			'edgeDetect_x += -2.0*right_grey;',
-			'edgeDetect_x += 1.0*bottom_left_grey;',
-			'edgeDetect_x += 0.0*bottom_bottom_grey;',
-			'edgeDetect_x += -1.0*bottom_right_grey;',
-
-
+			'mat3 edgeDetectMatrix_X;',
+			'edgeDetectMatrix_X[0] = vec3(1.0, 0.0, -1.0);',
+			'edgeDetectMatrix_X[1] = vec3(2.0, 0.0, -2.0);',
+			'edgeDetectMatrix_X[2] = vec3(1.0, 0.0, -1.0);',
+			
 			'float edgeDetect_y = 0.0;',
-			'edgeDetect_y += 0.0*middle_grey;',
-			'edgeDetect_y += 1.0*top_left_grey;',
-			'edgeDetect_y += 2.0*top_top_grey;',
-			'edgeDetect_y += 1.0*top_right_grey;',
-			'edgeDetect_y += 0.0*left_grey;',
-			'edgeDetect_y += 0.0*right_grey;',
-			'edgeDetect_y += -1.0*bottom_left_grey;',
-			'edgeDetect_y += -2.0*bottom_bottom_grey;',
-			'edgeDetect_y += -1.0*bottom_right_grey;',
+			'mat3 edgeDetectMatrix_Y;',
+			'edgeDetectMatrix_Y[0] = vec3(1.0, 2.0, 1.0);',
+			'edgeDetectMatrix_Y[1] = vec3(0.0, 0.0, 0.0);',
+			'edgeDetectMatrix_Y[2] = vec3(-1.0, -2.0, -1.0);',
 
 
+			'for(float k=0.0; k<3.0; k++){',
+				'for(float l=0.0; l<3.0; l++){',
+					'vec2 uvThisPixel = topLeftOffset + vec2(k*pixel_width, l*pixel_height);',
+					'vec3 thisPixelTexture = (texture2D(texture, uvThisPixel).rgb);',
+					'edgeDetect_x += edgeDetectMatrix_X[int(k)][int(l)]*((thisPixelTexture.r + thisPixelTexture.g + thisPixelTexture.b)/3.0);',
+					'edgeDetect_y += edgeDetectMatrix_Y[int(k)][int(l)]*((thisPixelTexture.r + thisPixelTexture.g + thisPixelTexture.b)/3.0);',
+				'};',
+			'};',
 			'float edgeDetect_magnitude = 0.0;',
 			'edgeDetect_magnitude += sqrt(edgeDetect_x*edgeDetect_x + edgeDetect_y*edgeDetect_y);',
-			
+
 
 			// blurr calculation
-			'vec3 blur = vec3(0.0);',
-			'blur += (1.0/9.0)*(middle+top_left+top_top+top_right+left+right+bottom_left+bottom_bottom+bottom_right);',
+			'vec3 blurColor = vec3(0.0);',
+			'mat3 blurMatrix;',
+			'blurMatrix[0] = vec3(1.0/9.0, 1.0/9.0, 1.0/9.0);',
+			'blurMatrix[1] = vec3(1.0/9.0, 1.0/9.0, 1.0/9.0);',
+			'blurMatrix[2] = vec3(1.0/9.0, 1.0/9.0, 1.0/9.0);',
+			'for(float j=0.0; j<3.0; j++){;',
+				'for(float i=0.0; i<3.0; i++){;',
+					'vec2 uvThisPixel = topLeftOffset + vec2(j*pixel_width, i*pixel_height);',
+					'blurColor += blurMatrix[int(i)][int(j)]*texture2D(texture, uvThisPixel).rgb;',
+				'};',
+			'};',
 
-
+			// switching between different filters
 			'if(greyScaleActive == 1.0){',
 				'gl_FragColor = vec4 (middle_grey, middle_grey, middle_grey, 1.0);',
 			'}else if(edgeDetectionActive == 1.0){',
 				'gl_FragColor = vec4 (edgeDetect_magnitude, edgeDetect_magnitude, edgeDetect_magnitude ,1.0);',
 			'}else if(blurActive == 1.0){',
-				'gl_FragColor = vec4 (blur,1.0);',
+				'gl_FragColor = vec4 (blurColor,1.0);',
 			'}else{',
 				'gl_FragColor = (texture2D(texture, vUV).rgba);',
 			'}',
 			
-			// 'gl_FragColor = vec4(, 0.0, 0.0, 1.0);', //1.0 is opaque
-			// 'gl_FragColor = (texture2D(texture, vUV).rgba);',
-			// 'gl_FragColor = vec4(color,1.0);',
 
 		'}',
 	].join('\n');
