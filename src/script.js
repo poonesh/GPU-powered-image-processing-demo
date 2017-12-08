@@ -10,7 +10,7 @@ var images_per_row = 3;
 // edge detection using GLSL and  three.js
 document.addEventListener("DOMContentLoaded", function(event){
 
-		'use strict';  //javaScript is executed in "strict mode"
+	'use strict';  //javaScript is executed in "strict mode"
 	
 	// not sure what does the following function does, it sounds like the original coder had writtern its own dollar sign
 	(function(){
@@ -54,13 +54,13 @@ document.addEventListener("DOMContentLoaded", function(event){
 
 			// To upload more than one image we can loop over the file
 			// and runUpload the files one by one
-			var file = e.dataTransfer.files; 
-			var previous_image_num = total_image_num;
+			var file = e.dataTransfer.files;
 			if (total_image_num > 5){
                 console.error("you cannot upload more than five pictures");
                 return;
             }
 			for (var i=0; i<file.length; i++){
+				var previous_image_num = total_image_num;
 				// converting linear index to 2D index for thumbnail images
 				var xIndex = previous_image_num % images_per_row; 
                 var yIndex = Math.floor(previous_image_num / images_per_row);
@@ -68,10 +68,9 @@ document.addEventListener("DOMContentLoaded", function(event){
                 var leftOffset = xIndex * 105;
                 var topOffset = yIndex * 105;
 
-                total_image_num += 1;
-
 				var myDiv = $('<div></div>');
-				runUpload(file[i], myDiv, i);
+				runUpload(file[i], myDiv, total_image_num);
+				total_image_num += 1;
 
 				// positioning thumbnail images based on left and top corner offset
 				myDiv.css({
@@ -152,8 +151,9 @@ document.addEventListener("DOMContentLoaded", function(event){
 
                 var leftOffset = xIndex * 105;
                 var topOffset = yIndex * 105;
-                console.log("topOffset", topOffset);
-
+                // console.log("topOffset", topOffset);
+                // console.log("leftOffset", leftOffset);
+				
 				myDiv.css({
                     left: leftOffset,
                     top: topOffset,
@@ -161,6 +161,7 @@ document.addEventListener("DOMContentLoaded", function(event){
                 });
 				$('#thumbnailImage').append(myDiv);
 				total_image_num += 1;
+				console.log("total_image_num",total_image_num);
 			});
 		}else{
 			// report error message if FileReader is unavialable
