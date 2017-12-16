@@ -1,0 +1,10 @@
+{
+  "name": "image-editor",
+  "version": "0.0.0",
+  "description": "GLSL-based Image Editing App",
+  "main": "src/script.js",
+  "devDependencies": {
+    "rollup": "*"
+  },
+  "author": "Pooneh Shooshtari, Michael Firmin"
+}
