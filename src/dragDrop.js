@@ -1,29 +1,31 @@
-// Drag and Drop code for Upload
-// drag and drop dictionary is a collection of keys and values (functions) 
-// to drag and drop the images inside thumbnailImage
-// the main reason that we have uses dictionary here is to organize these 
-// functions 
 
-var material = null;
-export function setMaterial(m){
-	material = m;
+// dragdrop object(dictionary) is a collection of keys and values (functions) to drag and drop the images 
+// inside thumbnailImage div. A function is assigned to init key which handels the events "drop", "dragenter",
+// "dragover", "dragleave". The main reason to use dictionary here is to organize the event handler functions.
+// The function assigned to drop key, will take the data(images) through e.dataTransfer.files. Then iterate 
+// through the files and upload the files inside the thumbnailImage div by calling runUpload function. 
+
+var material = [];
+
+export function addMaterial(m){
+	material.push(m);
 };
 
-export var dragdrop = {
-    elem: null,   //???? Why did you put element equal to null? I asked you this question before!
+export var dragdropUpload = {
+    elem: null,   //Why did you put element equal to null?
 	init: function(elementValue){
-		elementValue.addEventListener('drop', dragdrop.drop);
-        elementValue.addEventListener('dragenter', dragdrop.enter);
-		elementValue.addEventListener('dragover', dragdrop.drag);
-        elementValue.addEventListener('dragleave', dragdrop.leave);
-        dragdrop.elem = elementValue;
+		elementValue.addEventListener('drop', dragdropUpload.drop);
+        elementValue.addEventListener('dragenter', dragdropUpload.enter);
+		elementValue.addEventListener('dragover', dragdropUpload.drag);
+        elementValue.addEventListener('dragleave', dragdropUpload.leave);
+        dragdropUpload.elem = elementValue;
 	},
 
 	drop: function(e){
 		e.preventDefault();
         // set element border back to grey
-        if (dragdrop.elem !== null) {
-            $(dragdrop.elem).css({ 'border': 'solid 2px #333333' }); //it is jQuery(css and $)
+        if (dragdropUpload.elem !== null) {
+            $(dragdropUpload.elem).css({ 'border': 'solid 2px #333333' }); //it is jQuery(css and $)
         }
 
 		// To upload more than one image we can loop over the file
@@ -63,48 +65,47 @@ export var dragdrop = {
 
     enter: function(e) {
         // highlight element by setting its border to blue
-        if (dragdrop.elem !== null) {
-            $(dragdrop.elem).css({ 'border': 'solid 2px #0000FF' });
+        if (dragdropUpload.elem !== null) {
+            $(dragdropUpload.elem).css({ 'border': 'solid 2px #0000FF' });
         }
     },
 
     leave: function(e) {
         // set element border back to grey
-        if (dragdrop.elem !== null) {
-            $(dragdrop.elem).css({ 'border': 'solid 2px #333333' });
+        if (dragdropUpload.elem !== null) {
+            $(dragdropUpload.elem).css({ 'border': 'solid 2px #333333' });
         }
     }
 };
 
-
-function drag(ev){
+function dragToEditingDiv(ev){
 	ev.originalEvent.dataTransfer.setData("text", ev.originalEvent.target.id);
 }
 
-function drop(ev){ //drop function works when I am releasing the mouse
-	var data = ev.originalEvent.dataTransfer.getData("text"); //look for dataTransfer???????
-	console.log(data);
+function dropToEditingDiv(ev){ //drop function works when I am releasing the mouse
+	var data = ev.originalEvent.dataTransfer.getData("text");
 	var imgSrc = document.getElementById(data).getAttribute("src");
 	
 	// create texture_loader
 	var texture_loader = new THREE.TextureLoader();
 	var texture = texture_loader.load(imgSrc);
-	material.uniforms.texture.value = texture;
-
+	for (let i=0; i<material.length; i++){
+		material[i].uniforms.texture.value = texture;
+	}
 }
 
 // drag and drop thumbnail images in main Editor div
 export function initializeDragDrop(){
-	$("#mainEditor").on("drop", drop);
-	$("#mainEditor").on("dragover", allowDrop);
+	$("#mainEditor").on("drop", dropToEditingDiv);
+	$("#mainEditor").on("dragover", allowDropToEditingDiv);
 }
 
-function allowDrop(ev){
+function allowDropToEditingDiv(ev){
 	ev.originalEvent.preventDefault();
 }
 
 
-// function to capture a file(image) and upload it to the browser
+// function to capture a file(image) and upload it to the thumbnailImage div
 export	function runUpload(file, myDiv, current_image_id){
 		if( file.type === 'image/png' ||
 			file.type === 'image/jpg' ||
@@ -118,7 +119,7 @@ export	function runUpload(file, myDiv, current_image_id){
 		  reader.onload = function(file_being_loaded){
 		  	var myImageTag = $('<img>');
 		  	//attach a drag event to <img> tag
-		  	myImageTag.on('dragstart', drag);
+		  	myImageTag.on('dragstart', dragToEditingDiv);
 		  	//using template string to set different ids for <img> tag
 		  	myImageTag.attr("id", `draggableImage${current_image_id}`); 
 		  	//jQuery to set the src attribute for <img> tag
