@@ -1,82 +1,80 @@
 // part of the code is from https://codepen.io/doughensel/pen/zGMmop
-import { dragdropUpload, runUpload, addMaterial, initializeDragDrop} from './dragDrop';
+import { dragdropUpload, runUpload, registerMaterialForDragDropUpdates, initializeDragDrop, initializeUploadImage} from './dragDrop';
 import { greyScaleMaterial} from './greyScaleShader';
 import { originalMaterial} from './originalShader';
-import {create3DScene} from './create3DScene';
+import { rotationMaterial} from './imageRotation';
+import { flippingMaterial_x} from './imageFlippingX';
+import { flippingMaterial_y} from './imageFlippingY';
+import { create3DScene } from './create3DScene';
 
-// defining global variables
-var images_per_row = 3;
-var previous_image_num = 0;
-var total_image_num = 0;
 
 // edge detection using GLSL and  three.js
 document.addEventListener("DOMContentLoaded", function(event){
 
 	'use strict';  //javaScript is executed in "strict mode"
 	
-	// not sure what does the following function does, it sounds like the original coder had writtern its own dollar sign
-	(function(){
-	// http://stackoverflow.com/questions/4083351/what-does-jquery-fn-mean
-		var select = function( elem ){
-			if (!(this instanceof select)){
-	      return new select(elem);
-			}
-			this.el = document.getElementById( elem );
-		};
-		window.select = select;
-		select.prototype = {    //onChange is a property of select.prototype object
-			onChange : function( callback ){
-				this.el.addEventListener('change', callback );
-				return this;
-			}
-		};
-	})();
+	// // not sure what does the following function does, it sounds like the original coder had writtern its own dollar sign
+	// (function(){
+	// // http://stackoverflow.com/questions/4083351/what-does-jquery-fn-mean
+	// 	var select = function( elem ){
+	// 		if (!(this instanceof select)){
+	//       return new select(elem);
+	// 		}
+	// 		this.el = document.getElementById( elem );
+	// 	};
+	// 	window.select = select;
+	// 	select.prototype = {    //onChange is a property of select.prototype object
+	// 		onChange : function( callback ){
+	// 			this.el.addEventListener('change', callback );
+	// 			return this;
+	// 		}
+	// 	};
+	// })();
 
-	// window.onload
-	window.onload = function(){
-		if (window.FileReader){
-			// connect the DIV surrounding the file upload to HTML5 drag and drop calls
-			dragdropUpload.init(select('droppingDiv').el);
-			// bind the input [type="file"] to the function runUpload()
-			select('fileUpload').onChange(function(){
-				var myDiv = $('<div></div>');
-				runUpload(this.files[0], myDiv, total_image_num); 
-				if (total_image_num > 5){
-                	console.error("you cannot upload more than six pictures");
-                	return;
-                };
+	window.onload = initializeUploadImage;
+
+	// window.onload (like document is ready)
+	// window.onload = function(){
+	// 	if (window.FileReader){
+	// 		// connect the DIV surrounding the file upload to HTML5 drag and drop calls
+	// 		dragdropUpload.init(select('droppingDiv').el);
+	// 		// bind the input [type="file"] to the function runUpload()
+	// 		select('fileUpload').onChange(function(){
+	// 			var myDiv = $('<div></div>');
+	// 			runUpload(this.files[0], myDiv, total_image_num); 
+	// 			if (total_image_num > 5){
+ //                	console.error("you cannot upload more than six pictures");
+ //                	return;
+ //                };
 				
-				// convert linear index to 2D index
-                var xIndex = total_image_num % images_per_row;
-                var yIndex = Math.floor(total_image_num / images_per_row);
+	// 			// convert linear index to 2D index
+ //                var xIndex = total_image_num % images_per_row;
+ //                var yIndex = Math.floor(total_image_num / images_per_row);
 
-                var leftOffset = xIndex * 105;
-                var topOffset = yIndex * 105;
-                // console.log("topOffset", topOffset);
-                // console.log("leftOffset", leftOffset);
+ //                var leftOffset = xIndex * 105;
+ //                var topOffset = yIndex * 105;
 				
-				myDiv.css({
-                    left: leftOffset,
-                    top: topOffset,
-                    position: "absolute"
-                });
-				$('#thumbnailImage').append(myDiv);
-				total_image_num += 1;
-				console.log("total_image_num",total_image_num);
-			});
-		}else{
-			// report error message if FileReader is unavialable
-			var p = document.createElement('p');
-			var msg = document.createElement('Sorry, your browser does not support FileReader.');
-			p.className = 'error';
-			p.appendChild(msg);
-			//select(droppingDiv) returns a dictionary which has a key 
-			//element called "el" which happens to be the image
-			select(droppingDiv).el.innerHTML = ''; 
-			select(droppingDiv).el.appendChild( p );
-		}
+	// 			myDiv.css({
+ //                    left: leftOffset,
+ //                    top: topOffset,
+ //                    position: "absolute"
+ //                });
+	// 			$('#thumbnailImage').append(myDiv);
+	// 			total_image_num += 1;
+	// 		});
+	// 	}else{
+	// 		// report error message if FileReader is unavialable
+	// 		var p = document.createElement('p');
+	// 		var msg = document.createElement('Sorry, your browser does not support FileReader.');
+	// 		p.className = 'error';
+	// 		p.appendChild(msg);
+	// 		//select(droppingDiv) returns a dictionary which has a key 
+	// 		//element called "el" which happens to be the image
+	// 		select(droppingDiv).el.innerHTML = ''; 
+	// 		select(droppingDiv).el.appendChild( p );
+	// 	}
 
-	};
+	// };
 
 	initializeDragDrop();
 
@@ -125,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function(event){
 	});
 
 
- //    // create a renderer object
+ 	// create a renderer object
 	// // buffer geometry and properties are all made in three.js and in order to 
 	// // render it in WebGL we need to create a WebGLRenderer()
 	// var renderer = new THREE.WebGLRenderer({ alpha: true }); 
@@ -176,12 +174,12 @@ document.addEventListener("DOMContentLoaded", function(event){
 	// var uv_vertices = new Float32Array([left_bottom[0], left_bottom[1], right_bottom[0], 
 	// 	right_bottom[1], right_top[0], right_top[1], right_top[0], right_top[1], left_top[0], 
 	// 	left_top[1], left_bottom[0], left_bottom[1]]);
-	// // create BufferAttribute and pass two parameters
+	// create BufferAttribute and pass two parameters
 	// var uv_array = new THREE.BufferAttribute(uv_vertices, 2);
 	// // add attribute to buffer geometry which we call it 'uv' and pass the uv_array
 	// plane.addAttribute('uv', uv_array);
 
-	// // vertex shader variable
+	// vertex shader variable
 	// var vShader = [
 	// 	'varying vec2 vUV;', //
 	// 	'void main() {',
@@ -191,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function(event){
 	// 	'}',
 	// ].join('\n');
 	
-	// // fragment shader variable
+	// fragment shader variable
 	// var fShader = [
 	// 	'varying vec2 vUV;',
 	// 	// another type of variable (javaScript tells GLSL the value of this variable)
@@ -285,11 +283,15 @@ document.addEventListener("DOMContentLoaded", function(event){
 	// 	fragmentShader: fShader, // mandatory
 	// });
 	
-	addMaterial(originalMaterial);
-	addMaterial(greyScaleMaterial);
+	registerMaterialForDragDropUpdates(originalMaterial);
+	registerMaterialForDragDropUpdates(greyScaleMaterial);
+	registerMaterialForDragDropUpdates(rotationMaterial);
+	registerMaterialForDragDropUpdates(flippingMaterial_x);
+	registerMaterialForDragDropUpdates(flippingMaterial_y);
 
-	var returnedList = create3DScene(originalMaterial);
-
+	// var returnedList = create3DScene(flippingMaterial_x);
+	var returnedList = create3DScene(flippingMaterial_y);
+	
 	var scene = returnedList[0];
 	var renderer = returnedList[1];
 	var camera = returnedList[2];

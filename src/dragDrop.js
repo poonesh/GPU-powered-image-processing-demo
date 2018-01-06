@@ -5,10 +5,34 @@
 // The function assigned to drop key, will take the data(images) through e.dataTransfer.files. Then iterate 
 // through the files and upload the files inside the thumbnailImage div by calling runUpload function. 
 
-var material = [];
 
-export function addMaterial(m){
-	material.push(m);
+// defining global variables
+var images_per_row = 3;
+var previous_image_num = 0;
+var allMaterials = [];
+var total_image_num = 0;
+
+
+// not sure what does the following function does, it sounds like the original coder had writtern its own dollar sign
+(function(){
+// http://stackoverflow.com/questions/4083351/what-does-jquery-fn-mean
+	var select = function( elem ){
+		if (!(this instanceof select)){
+      return new select(elem);
+		}
+		this.el = document.getElementById( elem );
+	};
+	window.select = select;
+	select.prototype = {    //onChange is a property of select.prototype object
+		onChange : function( callback ){
+			this.el.addEventListener('change', callback );
+			return this;
+		}
+	};
+})();
+
+export function registerMaterialForDragDropUpdates(m){
+	allMaterials.push(m);
 };
 
 export var dragdropUpload = {
@@ -46,8 +70,7 @@ export var dragdropUpload = {
 
 			var myDiv = $('<div></div>');
 			runUpload(file[i], myDiv, total_image_num);
-			total_image_num += 1;
-
+			
 			// positioning thumbnail images based on left and top corner offset
 			myDiv.css({
                 left: leftOffset,
@@ -55,6 +78,7 @@ export var dragdropUpload = {
                 position: "absolute"
             });
 			$('#thumbnailImage').append(myDiv);
+			total_image_num += 1;
 		}
 
 	},
@@ -89,8 +113,8 @@ function dropToEditingDiv(ev){ //drop function works when I am releasing the mou
 	// create texture_loader
 	var texture_loader = new THREE.TextureLoader();
 	var texture = texture_loader.load(imgSrc);
-	for (let i=0; i<material.length; i++){
-		material[i].uniforms.texture.value = texture;
+	for (let i=0; i<allMaterials.length; i++){
+		allMaterials[i].uniforms.texture.value = texture;
 	}
 }
 
@@ -103,7 +127,6 @@ export function initializeDragDrop(){
 function allowDropToEditingDiv(ev){
 	ev.originalEvent.preventDefault();
 }
-
 
 // function to capture a file(image) and upload it to the thumbnailImage div
 export	function runUpload(file, myDiv, current_image_id){
@@ -131,4 +154,65 @@ export	function runUpload(file, myDiv, current_image_id){
 		  } // END reader.onload()
 		} // END test if file.type === imagerun
 	}
+
+
+export function initializeUploadImage(){
+	if (window.FileReader){
+		console.log("are you here********!");
+		// initializing the 'droppingDiv' div to HTML5 drag and drop calls
+		dragdropUpload.init(select('droppingDiv').el);
+		// bind the input [type="file"] to the function runUpload()
+		select('fileUpload').onChange(function(){
+			console.log("are you here2!!!!!!!!");
+			var myDiv = $('<div></div>');
+			runUpload(this.files[0], myDiv, total_image_num);
+			console.log("did you go through runUpload!");
+			if (total_image_num > 5){
+				console.error("you cannot upload more than six pictures");
+				return;
+			};
+			// convert linear index to 2D index
+			var xIndex = total_image_num % images_per_row;
+			var yIndex = Math.floor(total_image_num / images_per_row);
+
+			var leftOffset = xIndex * 105;
+			var topOffset = yIndex * 105;
+
+			myDiv.css({
+				left: leftOffset,
+				top: topOffset,
+				position: "absolute"
+			});
+			console.log("myDiv", myDiv);
+			console.log("thumbnail", $('#thumbnail'));
+			$('#thumbnail').append(myDiv);
+			total_image_num += 1;
+			console.log("total_image_num", total_image_num);
+		});
+	}else{
+		// report error message if FileReader is unavailable
+		var p = document.createElement('p');
+		var msg = document.createElement('Sorry, your browser does not support FileReader.');
+		p.className = 'error';
+		p.appendChild(msg);
+		//select(droppingDiv) returns a dictionary which has a key 
+		//element called "el" which happens to be the image
+		select(droppingDiv).el.innerHTML = ''; 
+		select(droppingDiv).el.appendChild( p );
+	}
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
