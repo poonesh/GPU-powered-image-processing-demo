@@ -163,7 +163,6 @@ export function initializeUploadImage(){
 		dragdropUpload.init(select('droppingDiv').el);
 		// bind the input [type="file"] to the function runUpload()
 		select('fileUpload').onChange(function(){
-			console.log("are you here2!!!!!!!!");
 			var myDiv = $('<div></div>');
 			runUpload(this.files[0], myDiv, total_image_num);
 			console.log("did you go through runUpload!");
@@ -185,7 +184,7 @@ export function initializeUploadImage(){
 			});
 			console.log("myDiv", myDiv);
 			console.log("thumbnail", $('#thumbnail'));
-			$('#thumbnail').append(myDiv);
+			$('#thumbnailImage').append(myDiv);
 			total_image_num += 1;
 			console.log("total_image_num", total_image_num);
 		});
