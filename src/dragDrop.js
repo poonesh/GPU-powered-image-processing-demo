@@ -8,7 +8,6 @@
 
 // defining global variables
 var images_per_row = 3;
-var previous_image_num = 0;
 var allMaterials = [];
 var total_image_num = 0;
 
@@ -31,9 +30,58 @@ var total_image_num = 0;
 	};
 })();
 
+// function to capture a file(image) and upload it to the thumbnailImage div
+export	function runUpload(file, myDiv, current_image_id){
+	if( file.type === 'image/png' ||
+		file.type === 'image/jpg' ||
+		file.type === 'image/jpeg'||
+		file.type === 'image/gif' ||
+		file.type === 'image/bmp' ){
+	  var reader = new FileReader();
+	  reader.readAsDataURL(file);
+
+	  // customizing the onload method and how to do onload
+	  reader.onload = function(file_being_loaded){
+	  	var myImageTag = $('<img>');
+	  	//attach a drag event to <img> tag
+	  	myImageTag.on('dragstart', dragToEditingDiv);
+	  	//using template string to set different ids for <img> tag
+	  	myImageTag.attr("id", `draggableImage${current_image_id}`); 
+	  	//jQuery to set the src attribute for <img> tag
+		myImageTag.attr("src",file_being_loaded.target.result); 
+		myImageTag.attr("draggable",true);
+		myImageTag.attr("class", "imageEdit");
+		myDiv.append(myImageTag);
+
+	  } // END reader.onload()
+	} // END test if file.type === imagerun
+}
+
+
 export function registerMaterialForDragDropUpdates(m){
 	allMaterials.push(m);
-};
+}
+
+function fileToImage(file){
+	// convert linear index to 2D index
+    var xIndex = total_image_num % images_per_row;
+    var yIndex = Math.floor(total_image_num / images_per_row);
+
+    var leftOffset = xIndex * 105;
+    var topOffset = yIndex * 105;
+
+    var myDiv = $('<div></div>');
+	runUpload(file, myDiv, total_image_num); 
+	
+	myDiv.css({
+        left: leftOffset,
+        top: topOffset,
+        position: "absolute"
+    });
+	$('#thumbnailImage').append(myDiv);
+	total_image_num += 1;
+}
+
 
 export var dragdropUpload = {
     elem: null,   //Why did you put element equal to null?
@@ -54,31 +102,14 @@ export var dragdropUpload = {
 
 		// To upload more than one image we can loop over the file
 		// and runUpload the files one by one
-		var file = e.dataTransfer.files;
+		var listOfFiles = e.dataTransfer.files;
 		if (total_image_num > 5){
             console.error("you cannot upload more than six pictures");
             return;
         }
-		for (var i=0; i<file.length; i++){
-			var previous_image_num = total_image_num;
-			// converting linear index to 2D index for thumbnail images
-			var xIndex = previous_image_num % images_per_row; 
-            var yIndex = Math.floor(previous_image_num / images_per_row);
-
-            var leftOffset = xIndex * 105;
-            var topOffset = yIndex * 105;
-
-			var myDiv = $('<div></div>');
-			runUpload(file[i], myDiv, total_image_num);
-			
-			// positioning thumbnail images based on left and top corner offset
-			myDiv.css({
-                left: leftOffset,
-                top: topOffset,
-                position: "absolute"
-            });
-			$('#thumbnailImage').append(myDiv);
-			total_image_num += 1;
+		for (var i=0; i<listOfFiles.length; i++){
+		// converting linear index to 2D index for thumbnail images
+			fileToImage(listOfFiles[i]);
 		}
 
 	},
@@ -128,65 +159,19 @@ function allowDropToEditingDiv(ev){
 	ev.originalEvent.preventDefault();
 }
 
-// function to capture a file(image) and upload it to the thumbnailImage div
-export	function runUpload(file, myDiv, current_image_id){
-		if( file.type === 'image/png' ||
-			file.type === 'image/jpg' ||
-			file.type === 'image/jpeg'||
-			file.type === 'image/gif' ||
-			file.type === 'image/bmp' ){
-		  var reader = new FileReader();
-		  reader.readAsDataURL(file);
-
-		  // customizing the onload method and how to do onload
-		  reader.onload = function(file_being_loaded){
-		  	var myImageTag = $('<img>');
-		  	//attach a drag event to <img> tag
-		  	myImageTag.on('dragstart', dragToEditingDiv);
-		  	//using template string to set different ids for <img> tag
-		  	myImageTag.attr("id", `draggableImage${current_image_id}`); 
-		  	//jQuery to set the src attribute for <img> tag
-			myImageTag.attr("src",file_being_loaded.target.result); 
-			myImageTag.attr("draggable",true);
-			myImageTag.attr("class", "imageEdit");
-			myDiv.append(myImageTag);
-
-		  } // END reader.onload()
-		} // END test if file.type === imagerun
-	}
-
 
 export function initializeUploadImage(){
 	if (window.FileReader){
-		console.log("are you here********!");
 		// initializing the 'droppingDiv' div to HTML5 drag and drop calls
 		dragdropUpload.init(select('droppingDiv').el);
 		// bind the input [type="file"] to the function runUpload()
 		select('fileUpload').onChange(function(){
-			var myDiv = $('<div></div>');
-			runUpload(this.files[0], myDiv, total_image_num);
-			console.log("did you go through runUpload!");
 			if (total_image_num > 5){
 				console.error("you cannot upload more than six pictures");
 				return;
 			};
-			// convert linear index to 2D index
-			var xIndex = total_image_num % images_per_row;
-			var yIndex = Math.floor(total_image_num / images_per_row);
 
-			var leftOffset = xIndex * 105;
-			var topOffset = yIndex * 105;
-
-			myDiv.css({
-				left: leftOffset,
-				top: topOffset,
-				position: "absolute"
-			});
-			console.log("myDiv", myDiv);
-			console.log("thumbnail", $('#thumbnail'));
-			$('#thumbnailImage').append(myDiv);
-			total_image_num += 1;
-			console.log("total_image_num", total_image_num);
+			fileToImage(this.files[0]);
 		});
 	}else{
 		// report error message if FileReader is unavailable
@@ -200,18 +185,3 @@ export function initializeUploadImage(){
 		select(droppingDiv).el.appendChild( p );
 	}
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
