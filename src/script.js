@@ -2,10 +2,13 @@
 import { dragdropUpload, runUpload, registerMaterialForDragDropUpdates, initializeDragDrop, initializeUploadImage} from './dragDrop';
 import { greyScaleMaterial} from './greyScaleShader';
 import { originalMaterial} from './originalShader';
-import { rotationMaterial} from './imageRotation';
+import { rotationMaterial90} from './imageRotation90';
+import { rotationMaterial180} from './imageRotation180';
 import { flippingMaterial_x} from './imageFlippingX';
 import { flippingMaterial_y} from './imageFlippingY';
 import { create3DScene } from './create3DScene';
+import { blurMaterial } from './blurShader';
+import { edgeDetectionMaterial } from './edgeDetectionShader'; 
 
 
 // edge detection using GLSL and  three.js
@@ -103,29 +106,43 @@ document.addEventListener("DOMContentLoaded", function(event){
 	// 	originalMaterial.uniforms.blurActive.value = 0.0;
 	// });
 
-		// toggle buttonsas
-	// $("#edgeDetection").click(function(){
-		
-	// });
+	// toggle buttonsas
+	$("#edgeDetection").click(function(){
+		mesh.material = edgeDetectionMaterial;
+	});
 
 	$("#greyScale").click(function(){
 		mesh.material = greyScaleMaterial;
 	});
 
-	// $("#blur").click(function(){
-	// 	originalMaterial.uniforms.blurActive.value = !originalMaterial.uniforms.blurActive.value;
-	// 	originalMaterial.uniforms.greyScaleActive.value = 0.0;
-	// 	originalMaterial.uniforms.edgeDetectionActive.value = 0.0;
-	// });
+	$("#blur").click(function(){
+		mesh.material = blurMaterial;
+	});
 
 	$("#origin").click(function(){
 		mesh.material = originalMaterial;
 	});
 
+	$("#flippingX").click(function(){
+		mesh.material = flippingMaterial_x;
+	});
+
+	$("#flippingY").click(function(){
+		mesh.material = flippingMaterial_y;
+	});
+
+	$("#rotation90Clockwise").click(function(){
+		mesh.material = rotationMaterial90;
+	});
+
+	$("#rotation180Clockwise").click(function(){
+		mesh.material = rotationMaterial180;
+	});
+
 
  	// create a renderer object
-	// // buffer geometry and properties are all made in three.js and in order to 
-	// // render it in WebGL we need to create a WebGLRenderer()
+	// buffer geometry and properties are all made in three.js and in order to 
+	// render it in WebGL we need to create a WebGLRenderer()
 	// var renderer = new THREE.WebGLRenderer({ alpha: true }); 
 
 	// // to have transparent background
@@ -285,17 +302,21 @@ document.addEventListener("DOMContentLoaded", function(event){
 	
 	registerMaterialForDragDropUpdates(originalMaterial);
 	registerMaterialForDragDropUpdates(greyScaleMaterial);
-	registerMaterialForDragDropUpdates(rotationMaterial);
+	registerMaterialForDragDropUpdates(rotationMaterial90);
+	registerMaterialForDragDropUpdates(rotationMaterial180);
 	registerMaterialForDragDropUpdates(flippingMaterial_x);
 	registerMaterialForDragDropUpdates(flippingMaterial_y);
+	registerMaterialForDragDropUpdates(blurMaterial);
+	registerMaterialForDragDropUpdates(edgeDetectionMaterial);
 
+	
 	// var returnedList = create3DScene(flippingMaterial_x);
-	var returnedList = create3DScene(flippingMaterial_y);
+	var returnedList = create3DScene(originalMaterial);
 	
 	var scene = returnedList[0];
 	var renderer = returnedList[1];
 	var camera = returnedList[2];
-
+	var mesh = returnedList[3];
 
 	// adding mesh to the scene
 	// var mesh = new THREE.Mesh(plane, originalMaterial);

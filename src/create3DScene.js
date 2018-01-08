@@ -59,7 +59,7 @@ export function create3DScene(initialMaterial){
 	// adding mesh to the scene
 	var mesh = new THREE.Mesh(plane, initialMaterial);
 	scene.add( mesh );
-	return [scene, renderer, camera];
+	return [scene, renderer, camera, mesh];
 
 }
 
