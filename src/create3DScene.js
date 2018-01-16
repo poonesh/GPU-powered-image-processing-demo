@@ -28,6 +28,7 @@ export function create3DScene(initialMaterial){
 	// create a geometry called plane
 	var plane = new THREE.BufferGeometry();
 
+
 	// the geometry is empty in the previous line, so what we do, we assign 
 	// vertices for the geometry and thats basically is just a vector array
 	var vertices = new Float32Array([-1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0,
@@ -62,4 +63,3 @@ export function create3DScene(initialMaterial){
 	return [scene, renderer, camera, mesh];
 
 }
-

@@ -10,7 +10,7 @@
 var images_per_row = 3;
 var allMaterials = [];
 var total_image_num = 0;
-
+var mesh;
 
 // not sure what does the following function does, it sounds like the original coder had writtern its own dollar sign
 (function(){
@@ -60,6 +60,25 @@ export	function runUpload(file, myDiv, current_image_id){
 
 export function registerMaterialForDragDropUpdates(m){
 	allMaterials.push(m);
+}
+
+export function getMesh(m){
+	mesh = m;
+}
+
+function adjustMeshVerticesUsingNewWidthandHeight(texture_width, texture_height){
+
+	var width_height_ratio = (texture_height/texture_width);
+	var new_height = width_height_ratio * 2.0;
+	var vertices = mesh.geometry.attributes.position.array;
+	var newVertices = [-1.0, -new_height/2.0, 1.0, 1.0, -new_height/2.0, 1.0, 1.0, new_height/2.0, 1.0, 
+	1.0, new_height/2.0, 1.0, -1.0, new_height/2.0, 1.0, -1.0, -new_height/2.0, 1.0];
+
+	for (let i=0; i<newVertices.length; i++){
+		vertices[i] = newVertices[i];
+	}
+	mesh.geometry.attributes.position.needsUpdate = true;
+	
 }
 
 function fileToImage(file){
@@ -144,9 +163,16 @@ function dropToEditingDiv(ev){ //drop function works when I am releasing the mou
 	// create texture_loader
 	var texture_loader = new THREE.TextureLoader();
 	var texture = texture_loader.load(imgSrc);
+
+	var texture_width = texture.image.width;
+	var texture_height = texture.image.height;
+
 	for (let i=0; i<allMaterials.length; i++){
 		allMaterials[i].uniforms.texture.value = texture;
 	}
+
+	adjustMeshVerticesUsingNewWidthandHeight(texture_width, texture_height);
+	
 }
 
 // drag and drop thumbnail images in main Editor div
