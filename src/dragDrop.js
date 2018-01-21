@@ -57,7 +57,7 @@ export	function runUpload(file, myDiv, current_image_id){
 	} // END test if file.type === imagerun
 }
 
-
+// Setter functions
 export function registerMaterialForDragDropUpdates(m){
 	allMaterials.push(m);
 }

@@ -335,7 +335,7 @@ document.addEventListener("DOMContentLoaded", function(event){
 	// 	console.log("are you in halfImage?");
 	// 	mesh.geometry.attributes.position.needsUpdate = true;
 	// });
-
+	window.mesh = mesh;
 	getMesh(mesh);
 
 	function onWindowResize() {
