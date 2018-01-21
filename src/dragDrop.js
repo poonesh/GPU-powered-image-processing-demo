@@ -62,7 +62,7 @@ export function registerMaterialForDragDropUpdates(m){
 	allMaterials.push(m);
 }
 
-export function getMesh(m){
+export function setMeshForDragDrop(m){
 	mesh = m;
 }
 

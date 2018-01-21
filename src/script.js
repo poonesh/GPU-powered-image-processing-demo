@@ -1,5 +1,5 @@
 // part of the code is from https://codepen.io/doughensel/pen/zGMmop
-import { dragdropUpload, runUpload, registerMaterialForDragDropUpdates, getMesh, initializeDragDrop, initializeUploadImage} from './dragDrop';
+import { dragdropUpload, runUpload, registerMaterialForDragDropUpdates, setMeshForDragDrop, initializeDragDrop, initializeUploadImage} from './dragDrop';
 import { greyScaleMaterial} from './greyScaleShader';
 import { originalMaterial} from './originalShader';
 import { rotationMaterial90} from './imageRotation90';
@@ -335,8 +335,21 @@ document.addEventListener("DOMContentLoaded", function(event){
 	// 	console.log("are you in halfImage?");
 	// 	mesh.geometry.attributes.position.needsUpdate = true;
 	// });
-	window.mesh = mesh;
-	getMesh(mesh);
+
+	setMeshForDragDrop(mesh);
+	
+	// rotate mesh clockwise for muliples of 90 degrees
+	$('#meshRotationCounterClockwise').click(function(){
+		console.log("counterClockwise");
+		mesh.rotation.z += 90*(Math.PI/180);
+	});
+
+	// rotate mesh counterclockwise for multiple of 90 degrees
+	$('#meshRotationClockwise').click(function(){
+		console.log("clockwise");
+		mesh.rotation.z -= 90*(Math.PI/180);
+	});
+
 
 	function onWindowResize() {
 		camera.aspect = 500 / 500;
