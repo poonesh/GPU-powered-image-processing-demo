@@ -1,5 +1,5 @@
 // part of the code is from https://codepen.io/doughensel/pen/zGMmop
-import { dragdropUpload, runUpload, registerMaterialForDragDropUpdates, initializeDragDrop, initializeUploadImage} from './dragDrop';
+import { dragdropUpload, runUpload, registerMaterialForDragDropUpdates, setMeshForDragDrop, initializeDragDrop, initializeUploadImage} from './dragDrop';
 import { greyScaleMaterial} from './greyScaleShader';
 import { originalMaterial} from './originalShader';
 import { rotationMaterial90} from './imageRotation90';
@@ -321,6 +321,35 @@ document.addEventListener("DOMContentLoaded", function(event){
 	// adding mesh to the scene
 	// var mesh = new THREE.Mesh(plane, originalMaterial);
 	// scene.add( mesh );
+
+	// console.log("geometry values");
+	// console.log(mesh.geometry.attributes.position.array);
+	// var vertices = mesh.geometry.attributes.position.array;
+	// var newVertices = [-1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, -1.0, 0.0, 1.0, -1.0, -1.0, 1.0];
+	
+	// for(var i=0; i<newVertices.length; i++){
+	// 	vertices[i] = newVertices[i];
+	// }
+
+	// $("#halfImage").click(function(){
+	// 	console.log("are you in halfImage?");
+	// 	mesh.geometry.attributes.position.needsUpdate = true;
+	// });
+
+	setMeshForDragDrop(mesh);
+	
+	// rotate mesh clockwise for muliples of 90 degrees
+	$('#meshRotationCounterClockwise').click(function(){
+		console.log("counterClockwise");
+		mesh.rotation.z += 90*(Math.PI/180);
+	});
+
+	// rotate mesh counterclockwise for multiple of 90 degrees
+	$('#meshRotationClockwise').click(function(){
+		console.log("clockwise");
+		mesh.rotation.z -= 90*(Math.PI/180);
+	});
+
 
 	function onWindowResize() {
 		camera.aspect = 500 / 500;
