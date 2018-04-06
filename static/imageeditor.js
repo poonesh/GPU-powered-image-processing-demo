@@ -18,7 +18,7 @@ var images_per_row = 3;
 var allMaterials = [];
 // total_image_num is the total number of images in drage and drop box
 var total_image_num = 0;
-// what is mesh here, when I say mesh?????
+// create a variable called mesh which basically consists of two triangles which created the 3D rectangle where the image is projected on
 var mesh;
 
 // not sure what does the following function does, it sounds like the original coder had writtern its own dollar sign
@@ -50,6 +50,8 @@ function runUpload(file, myDiv, current_image_id){
 	  reader.readAsDataURL(file);
 
 	  // customizing the onload method and how to do onload
+	  // reader calls the onload function(which is basically a callback function)
+	  // handler is a good definition for this type of function as well
 	  reader.onload = function(file_being_loaded){
 	  	var myImageTag = $('<img>');
 	  	//attach a drag event to <img> tag
@@ -84,7 +86,7 @@ function adjustMeshVerticesUsingNewWidthandHeight(texture_width, texture_height)
 	var vertices = mesh.geometry.attributes.position.array;
 	var newVertices = [-new_width/2, -new_height/2, new_width/2, new_width/2, -new_height/2, new_width/2, new_width/2, new_height/2, new_width/2, 
 	new_width/2, new_height/2, new_width/2, -new_width/2, new_height/2, new_width/2, -new_width/2, -new_height/2, new_width/2];
-
+	// in this for loop we are basically replalcing the new vertices with the old vertices in order to keep the ratio of the image
 	for (let i=0; i<newVertices.length; i++){
 		vertices[i] = newVertices[i];
 	}
@@ -114,10 +116,9 @@ function fileToImage(file){
 
 
 var dragdropUpload = {
-    elem: null,   //Why did you put element equal to null?
+    elem: null,  
 	init: function(elementValue){
 		elementValue.addEventListener('drop', dragdropUpload.drop);
-        elementValue.addEventListener('dragenter', dragdropUpload.enter);
 		elementValue.addEventListener('dragover', dragdropUpload.drag);
         elementValue.addEventListener('dragleave', dragdropUpload.leave);
         dragdropUpload.elem = elementValue;
@@ -146,14 +147,10 @@ var dragdropUpload = {
 
 	drag: function(e){
 		e.preventDefault();
-	},
-
-    enter: function(e) {
-        // highlight element by setting its border to blue
-        if (dragdropUpload.elem !== null) {
+		if (dragdropUpload.elem !== null) {
             $(dragdropUpload.elem).css({ 'border': 'solid 2px #00fc00' });
         }
-    },
+	},
 
     leave: function(e) {
         // set element border back to grey
