@@ -2,29 +2,17 @@
 *{ margin:0 ; padding:0; }
 
 body{
-	background-color: Gray;
+	background-color: #383838;
 	font-family: Arial, sans-serif;
 	padding: 15px;
 }
 
 .error{color: #B71C1C;}
 
-#droppingDiv{
-	display: block;
-	height: 100px;
-	width: 200px;
-	vertical-align: middle;
-	text-align: center;
-	color: #37474F;
-	background-color: LightGray;
-	border: solid 2px #333333;
-	border-radius: 10px;
-	margin: 20px 20px;
-}
-
-#droppingDiv input{
-	width: 150px;
-	margin: auto;
+#title{
+	margin-bottom: 50px;
+	margin-left: 15px;
+	color: #E0E0E0;
 }
 
 img{
@@ -35,16 +23,33 @@ img{
 #thumbnailImage{
 	width: 315px;
 	height: 225px;
-	margin: 20px 20px 20px 20px;
-	border: solid 2px #333333;
+	margin: 20px 20px 0px 20px;
+	border: solid 2px #616161;
 	position: absolute;
+}
+
+#thumbnailImage p{
+	color: #9E9E9E;
+}
+
+#fileUpload{
+	width: 150px;
+	position: relative;
+	margin-left: 20px;
+	margin-right: 0px;
+	color: #86C232;
+	top: 255px;
+}
+
+#fileUpload input[type=file]:active + label{
+	background-color:#86C232;
 }
 
 #mainEditor{
 	width: 500px;
 	height: 500px;
-	border: solid 2px #333333;
-	margin: 40px 20px 20px 500px;
+	border: solid 2px #616161;
+	margin: 0px 20px 20px 400px;
 }
 
 .expanded-image{
