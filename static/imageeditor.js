@@ -13,8 +13,12 @@
 
 // defining global variables
 var images_per_row = 3;
+// Materials are basically shaders(like edgeDetection shader, greyscale shader) and I need to append all the materials 
+// to allMaterials array in order to recognize the new texture every time I want to edit a new image
 var allMaterials = [];
+// total_image_num is the total number of images in drage and drop box
 var total_image_num = 0;
+// what is mesh here, when I say mesh?????
 var mesh;
 
 // not sure what does the following function does, it sounds like the original coder had writtern its own dollar sign
@@ -63,6 +67,7 @@ function runUpload(file, myDiv, current_image_id){
 }
 
 // Setter functions
+// this function basically takes a material(shader) as an input and push it into allMaterials array 
 function registerMaterialForDragDropUpdates(m){
 	allMaterials.push(m);
 }
@@ -73,11 +78,12 @@ function setMeshForDragDrop(m){
 
 function adjustMeshVerticesUsingNewWidthandHeight(texture_width, texture_height){
 
+	var new_width = 2;
 	var width_height_ratio = (texture_height/texture_width);
-	var new_height = width_height_ratio * 2.0;
+	var new_height = width_height_ratio * new_width;
 	var vertices = mesh.geometry.attributes.position.array;
-	var newVertices = [-1.0, -new_height/2.0, 1.0, 1.0, -new_height/2.0, 1.0, 1.0, new_height/2.0, 1.0, 
-	1.0, new_height/2.0, 1.0, -1.0, new_height/2.0, 1.0, -1.0, -new_height/2.0, 1.0];
+	var newVertices = [-new_width/2, -new_height/2, new_width/2, new_width/2, -new_height/2, new_width/2, new_width/2, new_height/2, new_width/2, 
+	new_width/2, new_height/2, new_width/2, -new_width/2, new_height/2, new_width/2, -new_width/2, -new_height/2, new_width/2];
 
 	for (let i=0; i<newVertices.length; i++){
 		vertices[i] = newVertices[i];
@@ -121,7 +127,7 @@ var dragdropUpload = {
 		e.preventDefault();
         // set element border back to grey
         if (dragdropUpload.elem !== null) {
-            $(dragdropUpload.elem).css({ 'border': 'solid 2px #333333' }); //it is jQuery(css and $)
+            $(dragdropUpload.elem).css({ 'border': 'solid 2px #616161' }); //it is jQuery(css and $)
         }
 
 		// To upload more than one image we can loop over the file
@@ -145,14 +151,14 @@ var dragdropUpload = {
     enter: function(e) {
         // highlight element by setting its border to blue
         if (dragdropUpload.elem !== null) {
-            $(dragdropUpload.elem).css({ 'border': 'solid 2px #0000FF' });
+            $(dragdropUpload.elem).css({ 'border': 'solid 2px #00fc00' });
         }
     },
 
     leave: function(e) {
         // set element border back to grey
         if (dragdropUpload.elem !== null) {
-            $(dragdropUpload.elem).css({ 'border': 'solid 2px #333333' });
+            $(dragdropUpload.elem).css({ 'border': 'solid 2px #616161' });
         }
     }
 };
@@ -161,9 +167,14 @@ function dragToEditingDiv(ev){
 	ev.originalEvent.dataTransfer.setData("text", ev.originalEvent.target.id);
 }
 
+
+// dropToEditingDiv function is basically get the image data as a "text" and also the url of the image and load the imgSrc in TextureLoader()
+// We can then get the width and height of the image(texture). then for the loop is basically looping over allMaterials array and assign 
+// the uniform values to the materials which are basically the new textures(images).
+
 function dropToEditingDiv(ev){ //drop function works when I am releasing the mouse
-	var data = ev.originalEvent.dataTransfer.getData("text");
-	var imgSrc = document.getElementById(data).getAttribute("src");
+	var thumbnailImageID = ev.originalEvent.dataTransfer.getData("text"); // image is stored as a string
+	var imgSrc = document.getElementById(thumbnailImageID).getAttribute("src"); // so basically we get a thumbnail image through its id and get the url of the image as a result
 	
 	// create texture_loader
 	var texture_loader = new THREE.TextureLoader();
@@ -194,7 +205,7 @@ function allowDropToEditingDiv(ev){
 function initializeUploadImage(){
 	if (window.FileReader){
 		// initializing the 'droppingDiv' div to HTML5 drag and drop calls
-		dragdropUpload.init(select('droppingDiv').el);
+		dragdropUpload.init(select('thumbnailImage').el);
 		// bind the input [type="file"] to the function runUpload()
 		select('fileUpload').onChange(function(){
 			if (total_image_num > 5){
@@ -212,8 +223,8 @@ function initializeUploadImage(){
 		p.appendChild(msg);
 		//select(droppingDiv) returns a dictionary which has a key 
 		//element called "el" which happens to be the image
-		select(droppingDiv).el.innerHTML = ''; 
-		select(droppingDiv).el.appendChild( p );
+		select(thumbnailImage).el.innerHTML = ''; 
+		select(thumbnailImage).el.appendChild( p );
 	}
 }
 
