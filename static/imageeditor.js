@@ -147,9 +147,11 @@ var dragdropUpload = {
 
 	drag: function(e){
 		e.preventDefault();
-		if (dragdropUpload.elem !== null) {
-            $(dragdropUpload.elem).css({ 'border': 'solid 2px #00fc00' });
-        }
+		// adding event handler to the body, so the border of the corresponding div gets highlited
+		// as soon as drag an image to the body
+		document.addEventListener('dragover', function(e){
+			$('#thumbnailImage').css({ 'border': 'solid 2px #86C232' });
+		});
 	},
 
     leave: function(e) {
@@ -209,7 +211,6 @@ function initializeUploadImage(){
 				console.error("you cannot upload more than six pictures");
 				return;
 			}
-
 			fileToImage(this.files[0]);
 		});
 	}else{
