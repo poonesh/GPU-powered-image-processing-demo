@@ -8,13 +8,19 @@
 
 // defining global variables
 var images_per_row = 3;
+
 // Materials are basically shaders(like edgeDetection shader, greyscale shader) and I need to append all the materials 
 // to allMaterials array in order to recognize the new texture every time I want to edit a new image
 var allMaterials = [];
+
 // total_image_num is the total number of images in drage and drop box
 var total_image_num = 0;
+
 // create a variable called mesh which basically consists of two triangles which created the 3D rectangle where the image is projected on
 var mesh;
+
+// global boolean
+var thumbnailImageDragged = false;
 
 // not sure what does the following function does, it sounds like the original coder had writtern its own dollar sign
 (function(){
@@ -49,8 +55,10 @@ export	function runUpload(file, myDiv, current_image_id){
 	  // handler is a good definition for this type of function as well
 	  reader.onload = function(file_being_loaded){
 	  	var myImageTag = $('<img>');
-	  	//attach a drag event to <img> tag
+	  	//attach a dragstart event to <img> tag
 	  	myImageTag.on('dragstart', dragToEditingDiv);
+	  	//attach a dragend event to <img> tag
+	  	myImageTag.on('dragend', endDragToEditingDiv);
 	  	//using template string to set different ids for <img> tag
 	  	myImageTag.attr("id", `draggableImage${current_image_id}`); 
 	  	//jQuery to set the src attribute for <img> tag
@@ -109,18 +117,30 @@ function fileToImage(file){
 	total_image_num += 1;
 }
 
+// adding event handler to the body, so the border of the corresponding div gets highlited
+// as soon as drag an image to the body
+document.addEventListener('dragover', function(e){
+	$('#thumbnailImage').css({ 'border': 'solid 2px #86C232' });
+	if (thumbnailImageDragged){
+		$('#thumbnailImage').css({ 'border': 'solid 2px #616161' });
+		$('#mainEditor').css({ 'border': 'solid 2px #86C232' });	
+	}
+
+});
+
 
 export var dragdropUpload = {
     elem: null,  
 	init: function(elementValue){
 		elementValue.addEventListener('drop', dragdropUpload.drop);
-		elementValue.addEventListener('dragover', dragdropUpload.drag);
+		elementValue.addEventListener('dragover', dragdropUpload.dragover);
         elementValue.addEventListener('dragleave', dragdropUpload.leave);
         dragdropUpload.elem = elementValue;
 	},
 
 	drop: function(e){
 		e.preventDefault();
+		$("#thumbnailDivDescription").remove();
         // set element border back to grey
         if (dragdropUpload.elem !== null) {
             $(dragdropUpload.elem).css({ 'border': 'solid 2px #616161' }); //it is jQuery(css and $)
@@ -140,13 +160,8 @@ export var dragdropUpload = {
 
 	},
 
-	drag: function(e){
+	dragover: function(e){
 		e.preventDefault();
-		// adding event handler to the body, so the border of the corresponding div gets highlited
-		// as soon as drag an image to the body
-		document.addEventListener('dragover', function(e){
-			$('#thumbnailImage').css({ 'border': 'solid 2px #86C232' });
-		});
 	},
 
     leave: function(e) {
@@ -159,8 +174,12 @@ export var dragdropUpload = {
 
 function dragToEditingDiv(ev){
 	ev.originalEvent.dataTransfer.setData("text", ev.originalEvent.target.id);
+	thumbnailImageDragged = true;
 }
 
+function endDragToEditingDiv(ev){
+	thumbnailImageDragged = false;		
+}
 
 // dropToEditingDiv function is basically get the image data as a "text" and also the url of the image and load the imgSrc in TextureLoader()
 // We can then get the width and height of the image(texture). then for the loop is basically looping over allMaterials array and assign 
@@ -169,6 +188,8 @@ function dragToEditingDiv(ev){
 function dropToEditingDiv(ev){ //drop function works when I am releasing the mouse
 	var thumbnailImageID = ev.originalEvent.dataTransfer.getData("text"); // image is stored as a string
 	var imgSrc = document.getElementById(thumbnailImageID).getAttribute("src"); // so basically we get a thumbnail image through its id and get the url of the image as a result
+	$('#mainEditorDescription').remove();
+	$('#mainEditor').css({ 'border': 'solid 2px #616161' });
 	
 	// create texture_loader
 	var texture_loader = new THREE.TextureLoader();
