@@ -1,5 +1,5 @@
 # GPU powered image processing demo
-This is the demonstration app using the GPU to apply image processing kernels to user-uploaded images.
+Demonstration of using the GPU to apply image processing kernels to user-uploaded images. [link](https://poonesh.github.io/GPU-powered-image-processing-demo)
 
 ![image processing demo](./image-processing.png)
 
